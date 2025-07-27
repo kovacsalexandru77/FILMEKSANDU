@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FilmBöngésző – Neon player & bal oldali kategória</title>
+
+<!-- Bootstrap ikonok -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+/* ----- ALAP STÍLUS ----- */
+body { margin:0; background:black; color:white; font-family:Arial; }
+
+/* ----- FEJLÉC (flex sorban) ----- */
+header { 
+  background: rgba(0,0,0,0.85); 
+  padding:10px 20px; 
+  display:flex;
+  justify-content:flex-start;   /* 🔵 cím és select balra */
+  align-items:center;
+  gap: 20px;                    /* kis távolság a cím és a select között */
+  position:sticky; 
+  top:0; 
+  z-index:1000;
+  margin-left: 60px;
+}
+h1 { margin:0; color:cyan; font-size:22px; }
+#categorySelect { 
+  padding:6px 10px; 
+  font-size:15px; 
+  background:rgba(0,0,0,0.6);
+  color:white; 
+  border:2px solid cyan; 
+  border-radius:6px; 
+}
+
+/* ----- FILM GRID ----- */
+#movies { 
+  display:grid; 
+  grid-template-columns:repeat(5, 1fr);
+  gap:15px; 
+  padding:15px;
+  margin-left: 60px;
+}
+.movie { 
+  background:rgba(0,0,0,0.6); 
+  border:2px solid lime; 
+  border-radius:10px; 
+  overflow:hidden; 
+  cursor:pointer; 
+  transition:0.3s; 
+}
+.movie:hover { transform:scale(1.05); box-shadow:0 0 15px lime; }
+.movie img { width:100%; height:240px; object-fit:cover; display:block; }
+.movie-title { text-align:center; padding:8px; font-size:14px; color:cyan; }
+
+/* ----- MODAL PLAYER ----- */
+#playerModal { 
+  position:fixed; 
+  top:0; left:0; 
+  width:100%; height:100%; 
+  background:rgba(0,0,0,0.9); 
+  display:none; 
+  align-items:center; 
+  justify-content:center; 
+  flex-direction:column; 
+  z-index:9999; 
+}
+#playerModal.show { display:flex; }
+
+#playerIframe { 
+  width:80%; 
+  height:70%; 
+  border:none; 
+  box-shadow:0 0 25px cyan, 0 0 50px cyan; /* 🔵 NEON FÉNY */
+  border-radius: 10px;
+}
+
+/* 🔵 Kicsi X gomb a jobb alsó sarokban */
+#closeBtn { 
+  position:absolute; 
+  bottom:20px; 
+  right:30px; 
+  font-size:20px; 
+  background:rgba(255,0,0,0.8); 
+  color:white; 
+  border-radius:50%; 
+  padding:5px 10px; 
+  cursor:pointer; 
+  box-shadow:0 0 10px red;
+  transition: 0.3s;
+}
+#closeBtn:hover {
+  background:red;
+  box-shadow:0 0 15px #ff4040;
+  transform: scale(1.1);
+}
+
+/* ----- LOAD MORE GOMB ----- */
+#loadMoreBtn { 
+  text-align:center; 
+  padding:20px;
+  margin-left: 60px;
+}
+#loadMoreBtn button { 
+  padding:10px 20px; 
+  font-size:16px; 
+  background:cyan; 
+  color:black; 
+  border:none; 
+  border-radius:8px; 
+  cursor:pointer; 
+  box-shadow:0 0 10px cyan; 
+}
+#loadMoreBtn button:hover { background:#00ffff; box-shadow:0 0 20px cyan; }
+
+/* ----- SIDEBAR ----- */
+.sidebar {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  height: 100%;
+  width: 60px;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  z-index: 1000;
+}
+.sidebar a {
+  text-decoration: none;
+  color: #00f7ff;
+  font-size: 24px;
+  margin: 18px 0;
+  transition: transform 0.3s, color 0.3s;
+}
+.sidebar a:hover {
+  color: #ff00ff;
+  transform: scale(1.2);
+  text-shadow: 0 0 10px #ff00ff;
+}
+
+/* ----- ÓRA ----- */
+.clock {
+  position: fixed;
+  top: 4px; 
+  right: 17px;
+  font-size: 16px;
+  color: cyan;
+  background: none;  /* 🔵 nincs háttér */
+  padding: 7px 16px;
+  border-radius: 6px;
+  z-index: 10000;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<!-- 🔵 SIDEBAR IKONOK -->
+<div class="sidebar">
+  <a href="#" onclick="setCategory('kalandfilmek-magyarul')" title="Kalandfilmek"><i class="bi bi-map"></i></a>
+  <a href="#" onclick="setCategory('mesefilm')" title="Mesefilmek"><i class="bi bi-star"></i></a>
+  <a href="#" onclick="setCategory('vigjatek')" title="Vígjáték"><i class="bi bi-emoji-laughing"></i></a>
+  <a href="#" onclick="setCategory('sorozatok')" title="Sorozatok"><i class="bi bi-collection-play"></i></a>
+  <a href="#" onclick="setCategory('thriller-filmek')" title="Thriller"><i class="bi bi-lightning"></i></a>
+  <a href="#" onclick="setCategory('teljes-film-magyarul')" title="Teljes Film"><i class="bi bi-film"></i></a>
+  <a href="#" onclick="setCategory('sci-fi-filmek')" title="Sci-Fi"><i class="bi bi-rocket"></i></a>
+  <a href="#" onclick="setCategory('csaladi-film')" title="Családi film"><i class="bi bi-people"></i></a>
+  <a href="#" onclick="setCategory('bunugyi-film')" title="Bűnügyi film"><i class="bi bi-shield-lock"></i></a>
+</div>
+
+<!-- 🔵 JOBB FELSŐ SAROK ÓRA -->
+<div class="clock" id="clock">00:00:00</div>
+
+<header>
+  <!-- 🔵 Cím + kategóriaválasztó BAL oldalon -->
+  <h1>🎬 Fɪʟᴍᴇᴋ Sᴀɴᴅᴜ▶</h1>
+  <select id="categorySelect" onchange="changeCategory()">
+    <option value="">Összes kategória</option>
+    <option value="kalandfilmek-magyarul">Kalandfilmek</option>
+    <option value="mesefilm">Mesefilmek</option>
+    <option value="vigjatek">Vígjáték</option>
+    <option value="sorozatok">Sorozatok</option>
+    <option value="thriller-filmek">Thriller</option>
+    <option value="teljes-film-magyarul">Teljes Film</option>
+    <option value="sci-fi-filmek">Sci-Fi</option>
+    <option value="csaladi-film">Családi filmek</option>
+    <option value="bunugyi-film">Bűnügyi filmek</option>
+  </select>
+</header>
+
+<div id="movies">Betöltés...</div>
+<div id="loadMoreBtn">
+  <button onclick="loadMore()">Több film betöltése</button>
+</div>
+
+<!-- 🔵 MODAL PLAYER -->
+<div id="playerModal">
+  <div id="closeBtn" onclick="closeModal()">✖</div>
+  <iframe id="playerIframe" allowfullscreen></iframe>
+</div>
+
+<script>
+const proxy = "https://api.allorigins.win/get?url=";
+const baseUrl = "https://online-film.eu/category/";
+let currentPage = 1;
+let currentCategory = "";
+
+/* ---- ÓRA ---- */
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById("clock").textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ---- FILMEK BETÖLTÉSE ---- */
+function loadMovies(page = 1) {
+  const url = currentCategory 
+    ? `${baseUrl}${currentCategory}/page/${page}/` 
+    : `${baseUrl}teljes-film-magyarul/page/${page}/`;
+
+  fetch(proxy + encodeURIComponent(url))
+    .then(res => res.json())
+    .then(data => {
+      const doc = new DOMParser().parseFromString(data.contents, "text/html");
+      const items = doc.querySelectorAll(".bs-blog-post.grid-card");
+      const container = document.getElementById("movies");
+      if (page === 1) container.innerHTML = "";
+
+      if (items.length === 0) {
+        document.getElementById("loadMoreBtn").style.display = "none";
+        return;
+      } else {
+        document.getElementById("loadMoreBtn").style.display = "block";
+      }
+
+      items.forEach(item => {
+        const image = item.querySelector(".bs-blog-thumb")?.getAttribute("data-bg");
+        const title = item.querySelector("h4.title a")?.textContent.trim();
+        const link = item.querySelector("h4.title a")?.href;
+
+        if (image && title && link) {
+          const div = document.createElement("div");
+          div.className = "movie";
+          div.innerHTML = `
+            <img src="${image}" alt="${title}">
+            <div class="movie-title">${title}</div>
+          `;
+          div.onclick = () => openPlayer(link);
+          container.appendChild(div);
+        }
+      });
+    });
+}
+
+/* ---- TÖBB FILM ---- */
+function loadMore() {
+  currentPage++;
+  loadMovies(currentPage);
+}
+
+/* ---- DROPDOWN KATEGÓRIA ---- */
+function changeCategory() {
+  currentCategory = document.getElementById("categorySelect").value;
+  currentPage = 1;
+  loadMovies(currentPage);
+}
+
+/* ---- SIDEBAR KATEGÓRIA ---- */
+function setCategory(category) {
+  currentCategory = category;
+  document.getElementById("categorySelect").value = category;
+  currentPage = 1;
+  loadMovies(currentPage);
+}
+
+/* ---- MODAL PLAYER ---- */
+function openPlayer(link) {
+  fetch(proxy + encodeURIComponent(link))
+    .then(res => res.json())
+    .then(data => {
+      const doc = new DOMParser().parseFromString(data.contents, "text/html");
+      const iframe = doc.querySelector('iframe[src*="youtube"], iframe[src*="ok.ru"], iframe[src*="videa"]');
+
+      if (iframe) {
+        let src = iframe.getAttribute("src");
+        if (src.startsWith("//")) src = "https:" + src;
+        src += (src.includes("?") ? "&" : "?") + "autoplay=1";
+        document.getElementById("playerIframe").src = src;
+        document.getElementById("playerModal").classList.add("show");
+      } else {
+        alert("❌ Nem találtunk lejátszható videót ehhez a filmhez.");
+      }
+    });
+}
+
+function closeModal() {
+  document.getElementById("playerModal").classList.remove("show");
+  document.getElementById("playerIframe").src = "";
+}
+
+/* ---- ELSŐ OLDAL ---- */
+loadMovies(currentPage);
+</script>
+
+</body>
+  </html>
