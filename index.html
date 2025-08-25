@@ -7,221 +7,273 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
   <style>
-    body {
-      margin: 0;
-      background: black;
-      color: white;
-      font-family: Arial;
-    }
-    header {
-      background: rgba(0, 0, 0, 0.85);
-      padding: 10px 20px;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 20px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      margin-left: 60px;
-    }
-    h1 {
-      margin: 0;
-      color: cyan;
-      font-size: 22px;
-    }
-    #categorySelect {
-      padding: 6px 10px;
-      font-size: 15px;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      border: 2px solid cyan;
-      border-radius: 6px;
-    }
-    #movies {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 15px;
-      padding: 15px;
-      margin-left: 60px;
-    }
-    .movie {
-      background: rgba(0, 0, 0, 0.6);
-      border: 4px solid lime;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .movie:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px lime;
-    }
-    .movie img {
-      width: 100%;
-      height: 240px;
-      object-fit: cover;
-      display: block;
-    }
-    .movie-title {
-      text-align: center;
-      padding: 8px;
-      font-size: 14px;
-      color: cyan;
-    }
-    #playerModal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      z-index: 9999;
-    }
-    #playerModal.show {
-      display: flex;
-    }
-    #playerIframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      box-shadow: 0 0 25px cyan, 0 0 50px cyan;
-      border-radius: 10px;
-    }
-    #closeBtn {
-      position: absolute;
-      bottom: 5px;
-      right: 10px;
-      font-size: 15px;
-      color: white;
-      border-radius: 50%;
-      padding: 5px 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    #closeBtn:hover {
-      box-shadow: 0 0 15px #ff4040;
-      transform: scale(1.1);
-    }
-    #loadMoreBtn {
-      text-align: center;
-      padding: 20px;
-      margin-left: 60px;
-    }
-    #loadMoreBtn button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background: cyan;
-      color: black;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 0 10px cyan;
-    }
-    #loadMoreBtn button:hover {
-      background: #00ffff;
-      box-shadow: 0 0 20px cyan;
-    }
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 60px;
-      background-color: transparent;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 30px;
-      z-index: 1000;
-    }
-    .sidebar a {
-      text-decoration: none;
-      color: #00f7ff;
-      font-size: 24px;
-      margin: 18px 0;
-      transition: transform 0.3s, color 0.3s;
-    }
-    .sidebar a:hover {
-      color: #ff00ff;
-      transform: scale(1.2);
-      text-shadow: 0 0 10px #ff00ff;
-    }
-    .clock {
-      position: fixed;
-      top: 4px;
-      right: 17px;
-      font-size: 16px;
-      color: cyan;
-      background: none;
-      padding: 7px 16px;
-      border-radius: 6px;
-      z-index: 10000;
-      font-weight: bold;
-    }
-    #preloader {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2000;
-      padding: 20px 40px;
-      border-radius: 12px;
-      text-align: center;
-      user-select: none;
-      pointer-events: none;
-    }
-    .txt-loading {
-      font-size: 38px;
-      font-weight: bold;
-      color: #00ffff;
-      text-shadow: 0 0 8px #00ff00, 0 0 20px #00ff00;
-      animation: pulse 1.5s infinite;
-      letter-spacing: 0.1em;
-      user-select: none;
-    }
-    .letters-loading {
-      display: inline-block;
-      animation: blink 1.2s infinite alternate;
-    }
-    .letters-loading:nth-child(1) { animation-delay: 0s; }
-    .letters-loading:nth-child(2) { animation-delay: 0.2s; }
-    .letters-loading:nth-child(3) { animation-delay: 0.4s; }
-    .letters-loading:nth-child(4) { animation-delay: 0.6s; }
-    .letters-loading:nth-child(5) { animation-delay: 0.8s; }
-    .letters-loading:nth-child(6) { animation-delay: 1.0s; }
-    .letters-loading:nth-child(7) { animation-delay: 1.2s; }
-    .letters-loading:nth-child(8) { animation-delay: 1.4s; }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
-    }
-    @keyframes blink {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-    .spinner {
-      border: 6px solid #333;
-      border-top: 6px solid cyan;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+   body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: Arial;
+}
+
+/* Header és cím */
+header {
+  background: rgba(0,0,0,0.85);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  margin-left: 60px;
+}
+
+h1 {
+  margin: 0;
+  color: cyan;
+  font-size: 22px;
+  animation: neonPulse 2s infinite;
+}
+
+/* Kategóriaválasztó */
+#categorySelect {
+  padding: 6px 10px;
+  font-size: 15px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: 2px solid cyan;
+  border-radius: 6px;
+}
+
+/* Filmek grid */
+#movies {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  padding: 15px;
+  margin-left: 60px;
+}
+
+.movie {
+  background: rgba(0,0,0,0.6);
+  border: 4px solid lime;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.movie:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px lime;
+}
+
+.movie img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  display: block;
+}
+
+.movie-title {
+  text-align: center;
+  padding: 8px;
+  font-size: 14px;
+  color: cyan;
+}
+
+/* Player modal */
+#playerModal {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:9999;
+}
+
+#playerModal.show {
+  display:flex;
+}
+
+#playerIframe {
+  width:100%;
+  height:100%;
+  border:none;
+  box-shadow:0 0 25px cyan,0 0 50px cyan;
+  border-radius:10px;
+}
+
+#closeBtn {
+  position:absolute;
+  bottom:5px;
+  right:10px;
+  font-size:15px;
+  color:white;
+  border-radius:50%;
+  padding:5px 10px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+#closeBtn:hover {
+  box-shadow:0 0 15px #ff4040;
+  transform: scale(1.1);
+}
+
+/* Load more button */
+#loadMoreBtn {
+  text-align:center;
+  padding:20px;
+  margin-left:60px;
+}
+
+#loadMoreBtn button {
+  padding:10px 20px;
+  font-size:16px;
+  background:cyan;
+  color:black;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  box-shadow:0 0 10px cyan;
+}
+
+#loadMoreBtn button:hover {
+  background:#00ffff;
+  box-shadow:0 0 20px cyan;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top:0; left:0;
+  height:100%;
+  width:60px;
+  background-color: transparent;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:30px;
+  z-index:1000;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #00f7ff;
+  font-size: 24px;
+  margin: 18px 0;
+  transition: transform 0.3s;
+  text-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff;
+  animation: neonPulse 2s infinite;
+}
+
+.sidebar a:hover {
+  transform: scale(1.2);
+}
+
+/* Óra */
+.clock {
+  position: fixed;
+  top:4px; right:17px;
+  font-size:16px;
+  color:cyan;
+  background:none;
+  padding:7px 16px;
+  border-radius:6px;
+  z-index:10000;
+  font-weight:bold;
+}
+
+/* Preloader */
+#preloader {
+  display: none;
+  position: fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+  z-index:2000;
+  padding:20px 40px;
+  border-radius:12px;
+  text-align:center;
+  user-select:none;
+  pointer-events:none;
+}
+
+.txt-loading {
+  font-size:38px;
+  font-weight:bold;
+  color:#00ffff;
+  text-shadow:0 0 8px #00ff00, 0 0 20px #00ff00;
+  animation:pulse 1.5s infinite;
+  letter-spacing:0.1em;
+  user-select:none;
+}
+
+.letters-loading {
+  display:inline-block;
+  animation:blink 1.2s infinite alternate;
+}
+
+.letters-loading:nth-child(1) { animation-delay:0s; }
+.letters-loading:nth-child(2) { animation-delay:0.2s; }
+.letters-loading:nth-child(3) { animation-delay:0.4s; }
+.letters-loading:nth-child(4) { animation-delay:0.6s; }
+.letters-loading:nth-child(5) { animation-delay:0.8s; }
+.letters-loading:nth-child(6) { animation-delay:1.0s; }
+.letters-loading:nth-child(7) { animation-delay:1.2s; }
+.letters-loading:nth-child(8) { animation-delay:1.4s; }
+
+/* Spinner */
+.spinner {
+  border:6px solid #333;
+  border-top:6px solid cyan;
+  border-radius:50%;
+  width:60px; height:60px;
+  animation:spin 1s linear infinite;
+}
+
+/* Animációk */
+@keyframes spin {
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
+
+@keyframes pulse {
+  0%,100%{opacity:0.8;}
+  50%{opacity:1;}
+}
+
+@keyframes blink {
+  0%{opacity:0;}
+  100%{opacity:1;}
+}
+
+/* Neon pulzáló animáció zöld és cyan színre */
+@keyframes neonPulse {
+  0% {
+    text-shadow: 0 0 6px #00ffff, 0 0 12px #00ffff, 0 0 20px #00ffff;
+  }
+  25% {
+    text-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00, 0 0 24px #00ff00;
+  }
+  50% {
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+  }
+  75% {
+    text-shadow: 0 0 12px #00ff00, 0 0 24px #00ff00, 0 0 36px #00ff00;
+  }
+  100% {
+    text-shadow: 0 0 6px #00ffff, 0 0 12px #00ffff, 0 0 20px #00ffff;
+  }
+}
   </style>
 </head>
 <body>
 
-<!-- 🔵 SIDEBAR IKONOK -->
 <div class="sidebar">
   <a href="#" onclick="setCategory('akciofilmek')" title="akciofilmek"><i class="bi bi-house-heart-fill"></i></a>
   <a href="#" onclick="setCategory('kalandfilmek-magyarul')" title="Kalandfilmek"><i class="bi bi-speedometer"></i></a>
@@ -235,11 +287,9 @@
   <a href="#" onclick="setCategory('bunugyi-film')" title="Bűnügyi film"><i class="bi bi-shield-lock"></i></a>
 </div>
 
-<!-- 🔵 JOBB FELSŐ SAROK ÓRA -->
 <div class="clock" id="clock">00:00:00</div>
 
 <header>
-  <!-- 🔵 Cím + kategóriaválasztó BAL oldalon -->
   <h1>🎬 Fɪʟᴍᴇᴋ Sᴀɴᴅᴜ▶</h1>
   <select id="categorySelect" onchange="changeCategory()">
     <option value="">Összes kategória</option>
@@ -267,6 +317,7 @@
     <span class="letters-loading">ɢ</span>
   </div>
 </div>
+
 <div id="movies">Betöltés...</div>
 <div id="loadMoreBtn">
   <button onclick="loadMore()">Több film betöltése</button>
@@ -294,9 +345,13 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
+/* Preloader kezelő */
+function showPreloader() { document.getElementById("preloader").style.display = "flex"; }
+function hidePreloader() { document.getElementById("preloader").style.display = "none"; }
+
 /* Filmek betöltése */
 function loadMovies(page = 1) {
-  document.getElementById("preloader").style.display = "flex";
+  showPreloader();
   const url = currentCategory
     ? `${baseUrl}${currentCategory}/page/${page}/`
     : `${baseUrl}teljes-film-magyarul/page/${page}/`;
@@ -304,7 +359,6 @@ function loadMovies(page = 1) {
   fetch(proxy + encodeURIComponent(url))
     .then((res) => res.json())
     .then((data) => {
-      document.getElementById("preloader").style.display = "none";
       const doc = new DOMParser().parseFromString(data.contents, "text/html");
       const items = doc.querySelectorAll(".bs-blog-post.grid-card");
       const container = document.getElementById("movies");
@@ -323,40 +377,25 @@ function loadMovies(page = 1) {
         if (image && title && link) {
           const div = document.createElement("div");
           div.className = "movie";
-          div.innerHTML = `
-            <img src="${image}" alt="${title}">
-            <div class="movie-title">${title}</div>
-          `;
+          div.innerHTML = `<img src="${image}" alt="${title}"><div class="movie-title">${title}</div>`;
           div.onclick = () => openPlayer(link);
           container.appendChild(div);
         }
       });
     })
-    .catch(() => {
-      // nincs alert, csak elrejtjük a preloadert csendben
-      document.getElementById("preloader").style.display = "none";
-    });
+    .catch(() => {})
+    .finally(() => hidePreloader());
 }
 
-function loadMore() {
-  currentPage++;
-  loadMovies(currentPage);
-}
+function loadMore() { currentPage++; loadMovies(currentPage); }
 
-function changeCategory() {
-  currentCategory = document.getElementById("categorySelect").value;
-  currentPage = 1;
-  loadMovies(currentPage);
-}
+function changeCategory() { currentCategory = document.getElementById("categorySelect").value; currentPage=1; loadMovies(currentPage); }
 
-function setCategory(category) {
-  currentCategory = category;
-  document.getElementById("categorySelect").value = category;
-  currentPage = 1;
-  loadMovies(currentPage);
-}
+function setCategory(category) { currentCategory=category; document.getElementById("categorySelect").value=category; currentPage=1; loadMovies(currentPage); }
 
+/* Film lejátszás */
 function openPlayer(link) {
+  showPreloader();
   fetch(proxy + encodeURIComponent(link))
     .then((res) => res.json())
     .then((data) => {
@@ -370,7 +409,8 @@ function openPlayer(link) {
         document.getElementById("playerModal").classList.add("show");
       }
     })
-    .catch(() => {}); // hibánál semmi
+    .catch(() => {})
+    .finally(() => hidePreloader());
 }
 
 function closeModal() {
